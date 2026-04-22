@@ -1,12 +1,11 @@
 using System;
 using Soenneker.Tests.Unit;
-using Xunit;
 
 namespace Soenneker.Extensions.DateTimeOffsets.Years.Tests;
 
 public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
 {
-    [Fact]
+    [Test]
     public void ToStartOfYear_preserves_offset()
     {
         var withOffset = new DateTimeOffset(2024, 6, 15, 12, 30, 0, TimeSpan.FromHours(-5));
@@ -21,7 +20,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(TimeSpan.FromHours(-5), result.Offset);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfYear_returns_last_tick_of_year_one_tick_before_next_year()
     {
         var midYear = new DateTimeOffset(2024, 7, 1, 0, 0, 0, TimeSpan.Zero);
@@ -39,7 +38,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(999, endOfYear.Millisecond);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfYear_leap_year_includes_feb_29()
     {
         var leapDay = new DateTimeOffset(2024, 2, 29, 12, 0, 0, TimeSpan.Zero);
@@ -50,21 +49,21 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(31, endOfYear.Day);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfPreviousYear_at_MinValue_returns_MinValue()
     {
         DateTimeOffset result = DateTimeOffset.MinValue.ToStartOfPreviousYear();
         Assert.Equal(DateTimeOffset.MinValue, result);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfPreviousYear_at_MinValue_returns_MinValue()
     {
         DateTimeOffset result = DateTimeOffset.MinValue.ToEndOfPreviousYear();
         Assert.Equal(DateTimeOffset.MinValue, result);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfPreviousYear_at_start_of_year_returns_last_tick_of_previous_year()
     {
         var startOf2024 = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero);
@@ -78,14 +77,14 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(59, endOfPrev.Second);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfNextYear_at_MaxValue_returns_MaxValue()
     {
         DateTimeOffset result = DateTimeOffset.MaxValue.ToStartOfNextYear();
         Assert.Equal(DateTimeOffset.MaxValue, result);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfYear_at_MaxValue_returns_last_tick_before_overflow()
     {
         // When next year overflows, implementation returns (nextStart - 1 tick); nextStart is MaxValue so result is MaxValue - 1 tick
@@ -94,14 +93,14 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(DateTimeOffset.MaxValue.Offset, result.Offset);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfNextYear_at_MaxValue_returns_last_tick_before_overflow()
     {
         DateTimeOffset result = DateTimeOffset.MaxValue.ToEndOfNextYear();
         Assert.Equal(DateTimeOffset.MaxValue.Ticks - 1, result.Ticks);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfNextYear_normal_returns_jan_1_next_year()
     {
         var midYear = new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.FromHours(2));
@@ -115,7 +114,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(TimeSpan.FromHours(2), result.Offset);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfPreviousYear_normal_returns_jan_1_previous_year()
     {
         var midYear = new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero);
@@ -127,7 +126,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(0, result.Hour);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfTzYear_null_tz_throws_ArgumentNullException()
     {
         var utc = new DateTimeOffset(2024, 6, 1, 0, 0, 0, TimeSpan.Zero);
@@ -136,7 +135,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal("tz", ex.ParamName);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfTzYear_UTC_returns_jan_1_utc_for_that_year()
     {
         var utc = new DateTimeOffset(2024, 7, 15, 12, 0, 0, TimeSpan.Zero);
@@ -150,7 +149,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(TimeSpan.Zero, result.Offset);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfTzYear_returns_UTC_offset_zero()
     {
         var localWithOffset = new DateTimeOffset(2024, 3, 1, 0, 0, 0, TimeSpan.FromHours(-6));
@@ -159,7 +158,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(TimeSpan.Zero, result.Offset);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfTzYear_one_tick_before_start_of_next_tz_year()
     {
         var utc = new DateTimeOffset(2024, 7, 1, 0, 0, 0, TimeSpan.Zero);
@@ -172,7 +171,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(31, endOfTzYear.Day);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfPreviousTzYear_at_MinValue_returns_MinValue()
     {
         // Only MinValue's "start of year" minus one year underflows
@@ -180,21 +179,21 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(DateTimeOffset.MinValue, result);
     }
 
-    [Fact]
+    [Test]
     public void ToStartOfNextTzYear_at_MaxValue_returns_MaxValue()
     {
         DateTimeOffset result = DateTimeOffset.MaxValue.ToStartOfNextTzYear(TimeZoneInfo.Utc);
         Assert.Equal(DateTimeOffset.MaxValue, result);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfTzYear_at_MaxValue_returns_last_tick_before_overflow()
     {
         DateTimeOffset result = DateTimeOffset.MaxValue.ToEndOfTzYear(TimeZoneInfo.Utc);
         Assert.Equal(DateTimeOffset.MaxValue.Ticks - 1, result.Ticks);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfPreviousTzYear_at_MinValue_returns_MinValue()
     {
         // Only when current TZ year start is MinValue does subtracting one tick underflow
@@ -202,7 +201,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(DateTimeOffset.MinValue, result);
     }
 
-    [Fact]
+    [Test]
     public void ToEndOfPreviousTzYear_at_start_of_year_two_returns_last_tick_of_year_one()
     {
         var startOfYearTwo = new DateTimeOffset(2, 1, 1, 0, 0, 0, TimeSpan.Zero);
@@ -214,7 +213,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         Assert.Equal(59, result.Minute);
     }
 
-    [Fact]
+    [Test]
     public void Dec_31_last_moment_ToEndOfYear_equals_that_instant()
     {
         // 23:59:59.999 = 9990000 ticks in fraction; add 9999 to get 23:59:59.9999999 (last tick of second)
