@@ -1,3 +1,4 @@
+using AwesomeAssertions;
 using System;
 using Soenneker.Tests.Unit;
 
@@ -11,13 +12,13 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         var withOffset = new DateTimeOffset(2024, 6, 15, 12, 30, 0, TimeSpan.FromHours(-5));
         DateTimeOffset result = withOffset.ToStartOfYear();
 
-        Assert.Equal(2024, result.Year);
-        Assert.Equal(1, result.Month);
-        Assert.Equal(1, result.Day);
-        Assert.Equal(0, result.Hour);
-        Assert.Equal(0, result.Minute);
-        Assert.Equal(0, result.Second);
-        Assert.Equal(TimeSpan.FromHours(-5), result.Offset);
+        result.Year.Should().Be(2024);
+        result.Month.Should().Be(1);
+        result.Day.Should().Be(1);
+        result.Hour.Should().Be(0);
+        result.Minute.Should().Be(0);
+        result.Second.Should().Be(0);
+        result.Offset.Should().Be(TimeSpan.FromHours(-5));
     }
 
     [Test]
@@ -27,15 +28,15 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         DateTimeOffset endOfYear = midYear.ToEndOfYear();
         DateTimeOffset startOfNextYear = midYear.ToStartOfNextYear();
 
-        Assert.Equal(endOfYear.Ticks + 1, startOfNextYear.Ticks);
-        Assert.Equal(2024, endOfYear.Year);
-        Assert.Equal(12, endOfYear.Month);
-        Assert.Equal(31, endOfYear.Day);
-        Assert.Equal(23, endOfYear.Hour);
-        Assert.Equal(59, endOfYear.Minute);
-        Assert.Equal(59, endOfYear.Second);
+        startOfNextYear.Ticks.Should().Be(endOfYear.Ticks + 1);
+        endOfYear.Year.Should().Be(2024);
+        endOfYear.Month.Should().Be(12);
+        endOfYear.Day.Should().Be(31);
+        endOfYear.Hour.Should().Be(23);
+        endOfYear.Minute.Should().Be(59);
+        endOfYear.Second.Should().Be(59);
         // End-of-year is one tick before start of next (already asserted above); sub-second precision depends on Trim
-        Assert.Equal(999, endOfYear.Millisecond);
+        endOfYear.Millisecond.Should().Be(999);
     }
 
     [Test]
@@ -44,23 +45,23 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         var leapDay = new DateTimeOffset(2024, 2, 29, 12, 0, 0, TimeSpan.Zero);
         DateTimeOffset endOfYear = leapDay.ToEndOfYear();
 
-        Assert.Equal(2024, endOfYear.Year);
-        Assert.Equal(12, endOfYear.Month);
-        Assert.Equal(31, endOfYear.Day);
+        endOfYear.Year.Should().Be(2024);
+        endOfYear.Month.Should().Be(12);
+        endOfYear.Day.Should().Be(31);
     }
 
     [Test]
     public void ToStartOfPreviousYear_at_MinValue_returns_MinValue()
     {
         DateTimeOffset result = DateTimeOffset.MinValue.ToStartOfPreviousYear();
-        Assert.Equal(DateTimeOffset.MinValue, result);
+        result.Should().Be(DateTimeOffset.MinValue);
     }
 
     [Test]
     public void ToEndOfPreviousYear_at_MinValue_returns_MinValue()
     {
         DateTimeOffset result = DateTimeOffset.MinValue.ToEndOfPreviousYear();
-        Assert.Equal(DateTimeOffset.MinValue, result);
+        result.Should().Be(DateTimeOffset.MinValue);
     }
 
     [Test]
@@ -69,19 +70,19 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         var startOf2024 = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero);
         DateTimeOffset endOfPrev = startOf2024.ToEndOfPreviousYear();
 
-        Assert.Equal(2023, endOfPrev.Year);
-        Assert.Equal(12, endOfPrev.Month);
-        Assert.Equal(31, endOfPrev.Day);
-        Assert.Equal(23, endOfPrev.Hour);
-        Assert.Equal(59, endOfPrev.Minute);
-        Assert.Equal(59, endOfPrev.Second);
+        endOfPrev.Year.Should().Be(2023);
+        endOfPrev.Month.Should().Be(12);
+        endOfPrev.Day.Should().Be(31);
+        endOfPrev.Hour.Should().Be(23);
+        endOfPrev.Minute.Should().Be(59);
+        endOfPrev.Second.Should().Be(59);
     }
 
     [Test]
     public void ToStartOfNextYear_at_MaxValue_returns_MaxValue()
     {
         DateTimeOffset result = DateTimeOffset.MaxValue.ToStartOfNextYear();
-        Assert.Equal(DateTimeOffset.MaxValue, result);
+        result.Should().Be(DateTimeOffset.MaxValue);
     }
 
     [Test]
@@ -89,15 +90,15 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
     {
         // When next year overflows, implementation returns (nextStart - 1 tick); nextStart is MaxValue so result is MaxValue - 1 tick
         DateTimeOffset result = DateTimeOffset.MaxValue.ToEndOfYear();
-        Assert.Equal(DateTimeOffset.MaxValue.Ticks - 1, result.Ticks);
-        Assert.Equal(DateTimeOffset.MaxValue.Offset, result.Offset);
+        result.Ticks.Should().Be(DateTimeOffset.MaxValue.Ticks - 1);
+        result.Offset.Should().Be(DateTimeOffset.MaxValue.Offset);
     }
 
     [Test]
     public void ToEndOfNextYear_at_MaxValue_returns_last_tick_before_overflow()
     {
         DateTimeOffset result = DateTimeOffset.MaxValue.ToEndOfNextYear();
-        Assert.Equal(DateTimeOffset.MaxValue.Ticks - 1, result.Ticks);
+        result.Ticks.Should().Be(DateTimeOffset.MaxValue.Ticks - 1);
     }
 
     [Test]
@@ -106,12 +107,12 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         var midYear = new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.FromHours(2));
         DateTimeOffset result = midYear.ToStartOfNextYear();
 
-        Assert.Equal(2025, result.Year);
-        Assert.Equal(1, result.Month);
-        Assert.Equal(1, result.Day);
-        Assert.Equal(0, result.Hour);
-        Assert.Equal(0, result.Minute);
-        Assert.Equal(TimeSpan.FromHours(2), result.Offset);
+        result.Year.Should().Be(2025);
+        result.Month.Should().Be(1);
+        result.Day.Should().Be(1);
+        result.Hour.Should().Be(0);
+        result.Minute.Should().Be(0);
+        result.Offset.Should().Be(TimeSpan.FromHours(2));
     }
 
     [Test]
@@ -120,10 +121,10 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         var midYear = new DateTimeOffset(2024, 6, 15, 0, 0, 0, TimeSpan.Zero);
         DateTimeOffset result = midYear.ToStartOfPreviousYear();
 
-        Assert.Equal(2023, result.Year);
-        Assert.Equal(1, result.Month);
-        Assert.Equal(1, result.Day);
-        Assert.Equal(0, result.Hour);
+        result.Year.Should().Be(2023);
+        result.Month.Should().Be(1);
+        result.Day.Should().Be(1);
+        result.Hour.Should().Be(0);
     }
 
     [Test]
@@ -131,8 +132,19 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
     {
         var utc = new DateTimeOffset(2024, 6, 1, 0, 0, 0, TimeSpan.Zero);
 
-        var ex = Assert.Throws<ArgumentNullException>(() => utc.ToStartOfTzYear(null!));
-        Assert.Equal("tz", ex.ParamName);
+        ArgumentNullException ex;
+
+        try
+        {
+            utc.ToStartOfTzYear(null!);
+            throw new Exception("Expected ArgumentNullException.");
+        }
+        catch (ArgumentNullException exception)
+        {
+            ex = exception;
+        }
+
+        ex.ParamName.Should().Be("tz");
     }
 
     [Test]
@@ -141,12 +153,12 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         var utc = new DateTimeOffset(2024, 7, 15, 12, 0, 0, TimeSpan.Zero);
         DateTimeOffset result = utc.ToStartOfTzYear(TimeZoneInfo.Utc);
 
-        Assert.Equal(2024, result.Year);
-        Assert.Equal(1, result.Month);
-        Assert.Equal(1, result.Day);
-        Assert.Equal(0, result.Hour);
-        Assert.Equal(0, result.Minute);
-        Assert.Equal(TimeSpan.Zero, result.Offset);
+        result.Year.Should().Be(2024);
+        result.Month.Should().Be(1);
+        result.Day.Should().Be(1);
+        result.Hour.Should().Be(0);
+        result.Minute.Should().Be(0);
+        result.Offset.Should().Be(TimeSpan.Zero);
     }
 
     [Test]
@@ -155,7 +167,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         var localWithOffset = new DateTimeOffset(2024, 3, 1, 0, 0, 0, TimeSpan.FromHours(-6));
         DateTimeOffset result = localWithOffset.ToStartOfTzYear(TimeZoneInfo.Utc);
 
-        Assert.Equal(TimeSpan.Zero, result.Offset);
+        result.Offset.Should().Be(TimeSpan.Zero);
     }
 
     [Test]
@@ -165,10 +177,10 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         DateTimeOffset endOfTzYear = utc.ToEndOfTzYear(TimeZoneInfo.Utc);
         DateTimeOffset startOfNextTzYear = utc.ToStartOfNextTzYear(TimeZoneInfo.Utc);
 
-        Assert.Equal(endOfTzYear.Ticks + 1, startOfNextTzYear.Ticks);
-        Assert.Equal(2024, endOfTzYear.Year);
-        Assert.Equal(12, endOfTzYear.Month);
-        Assert.Equal(31, endOfTzYear.Day);
+        startOfNextTzYear.Ticks.Should().Be(endOfTzYear.Ticks + 1);
+        endOfTzYear.Year.Should().Be(2024);
+        endOfTzYear.Month.Should().Be(12);
+        endOfTzYear.Day.Should().Be(31);
     }
 
     [Test]
@@ -176,21 +188,21 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
     {
         // Only MinValue's "start of year" minus one year underflows
         DateTimeOffset result = DateTimeOffset.MinValue.ToStartOfPreviousTzYear(TimeZoneInfo.Utc);
-        Assert.Equal(DateTimeOffset.MinValue, result);
+        result.Should().Be(DateTimeOffset.MinValue);
     }
 
     [Test]
     public void ToStartOfNextTzYear_at_MaxValue_returns_MaxValue()
     {
         DateTimeOffset result = DateTimeOffset.MaxValue.ToStartOfNextTzYear(TimeZoneInfo.Utc);
-        Assert.Equal(DateTimeOffset.MaxValue, result);
+        result.Should().Be(DateTimeOffset.MaxValue);
     }
 
     [Test]
     public void ToEndOfTzYear_at_MaxValue_returns_last_tick_before_overflow()
     {
         DateTimeOffset result = DateTimeOffset.MaxValue.ToEndOfTzYear(TimeZoneInfo.Utc);
-        Assert.Equal(DateTimeOffset.MaxValue.Ticks - 1, result.Ticks);
+        result.Ticks.Should().Be(DateTimeOffset.MaxValue.Ticks - 1);
     }
 
     [Test]
@@ -198,7 +210,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
     {
         // Only when current TZ year start is MinValue does subtracting one tick underflow
         DateTimeOffset result = DateTimeOffset.MinValue.ToEndOfPreviousTzYear(TimeZoneInfo.Utc);
-        Assert.Equal(DateTimeOffset.MinValue, result);
+        result.Should().Be(DateTimeOffset.MinValue);
     }
 
     [Test]
@@ -206,11 +218,11 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
     {
         var startOfYearTwo = new DateTimeOffset(2, 1, 1, 0, 0, 0, TimeSpan.Zero);
         DateTimeOffset result = startOfYearTwo.ToEndOfPreviousTzYear(TimeZoneInfo.Utc);
-        Assert.Equal(1, result.Year);
-        Assert.Equal(12, result.Month);
-        Assert.Equal(31, result.Day);
-        Assert.Equal(23, result.Hour);
-        Assert.Equal(59, result.Minute);
+        result.Year.Should().Be(1);
+        result.Month.Should().Be(12);
+        result.Day.Should().Be(31);
+        result.Hour.Should().Be(23);
+        result.Minute.Should().Be(59);
     }
 
     [Test]
@@ -220,7 +232,7 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         var lastTickOf2024 = new DateTimeOffset(2024, 12, 31, 23, 59, 59, 999, TimeSpan.Zero).AddTicks(9999);
         DateTimeOffset endOfYear = lastTickOf2024.ToEndOfYear();
 
-        Assert.Equal(lastTickOf2024.Ticks, endOfYear.Ticks);
-        Assert.Equal(lastTickOf2024.Offset, endOfYear.Offset);
+        endOfYear.Ticks.Should().Be(lastTickOf2024.Ticks);
+        endOfYear.Offset.Should().Be(lastTickOf2024.Offset);
     }
 }
