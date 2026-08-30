@@ -235,4 +235,18 @@ public sealed class DateTimeOffsetsYearsExtensionTests : UnitTest
         endOfYear.Ticks.Should().Be(lastTickOf2024.Ticks);
         endOfYear.Offset.Should().Be(lastTickOf2024.Offset);
     }
+
+    [Test]
+    public void Tz_year_boundaries_recalculate_offset_after_a_dateline_change()
+    {
+        TimeZoneInfo apia = TimeZoneInfo.FindSystemTimeZoneById("Pacific/Apia");
+        var instant = new DateTimeOffset(2011, 6, 1, 12, 0, 0, TimeSpan.Zero);
+
+        DateTimeOffset currentStart = instant.ToStartOfTzYear(apia);
+        DateTimeOffset nextStart = instant.ToStartOfNextTzYear(apia);
+
+        currentStart.Should().Be(new DateTimeOffset(2011, 1, 1, 10, 0, 0, TimeSpan.Zero));
+        nextStart.Should().Be(new DateTimeOffset(2011, 12, 31, 10, 0, 0, TimeSpan.Zero));
+        instant.ToEndOfTzYear(apia).AddTicks(1).Should().Be(nextStart);
+    }
 }

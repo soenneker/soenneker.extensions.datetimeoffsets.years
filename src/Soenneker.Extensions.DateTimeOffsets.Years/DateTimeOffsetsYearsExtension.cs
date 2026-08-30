@@ -160,19 +160,7 @@ public static class DateTimeOffsetsYearsExtension
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTimeOffset ToStartOfTzYear(this DateTimeOffset utcInstant, TimeZoneInfo tz)
-    {
-        if (tz is null)
-            throw new ArgumentNullException(nameof(tz));
-
-        DateTimeOffset utc = utcInstant.ToUniversalTime();
-        DateTimeOffset local = TimeZoneInfo.ConvertTime(utc, tz);
-
-        // Local wall-time boundary (00:00 Jan 1 of the local year)
-        var localStart = new DateTime(local.Year, 1, 1, 0, 0, 0, DateTimeKind.Unspecified);
-
-        DateTime utcStart = ConvertLocalBoundaryToUtc(localStart, tz);
-        return new DateTimeOffset(utcStart, TimeSpan.Zero);
-    }
+        => ToStartOfTzYearAtOffset(utcInstant, tz, 0);
 
     /// <summary>
     /// Computes the end of the year in <paramref name="tz"/> that contains <paramref name="utcInstant"/>,
@@ -189,8 +177,7 @@ public static class DateTimeOffsetsYearsExtension
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTimeOffset ToEndOfTzYear(this DateTimeOffset utcInstant, TimeZoneInfo tz)
     {
-        DateTimeOffset start = utcInstant.ToStartOfTzYear(tz);
-        DateTimeOffset next = SafeAddYears(start, 1, DateTimeOffset.MaxValue);
+        DateTimeOffset next = ToStartOfTzYearAtOffset(utcInstant, tz, 1);
         return SafeAddTicksPreserveOffset(next, -_oneTick, DateTimeOffset.MaxValue);
     }
 
@@ -205,10 +192,7 @@ public static class DateTimeOffsetsYearsExtension
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTimeOffset ToStartOfPreviousTzYear(this DateTimeOffset utcInstant, TimeZoneInfo tz)
-    {
-        DateTimeOffset start = utcInstant.ToStartOfTzYear(tz);
-        return SafeAddYears(start, -1, DateTimeOffset.MinValue);
-    }
+        => ToStartOfTzYearAtOffset(utcInstant, tz, -1);
 
     /// <summary>
     /// Computes the end of the previous year in <paramref name="tz"/> relative to <paramref name="utcInstant"/>,
@@ -240,10 +224,7 @@ public static class DateTimeOffsetsYearsExtension
     [Pure]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTimeOffset ToStartOfNextTzYear(this DateTimeOffset utcInstant, TimeZoneInfo tz)
-    {
-        DateTimeOffset start = utcInstant.ToStartOfTzYear(tz);
-        return SafeAddYears(start, 1, DateTimeOffset.MaxValue);
-    }
+        => ToStartOfTzYearAtOffset(utcInstant, tz, 1);
 
     /// <summary>
     /// Computes the end of the next year in <paramref name="tz"/> relative to <paramref name="utcInstant"/>,
@@ -260,9 +241,28 @@ public static class DateTimeOffsetsYearsExtension
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTimeOffset ToEndOfNextTzYear(this DateTimeOffset utcInstant, TimeZoneInfo tz)
     {
-        DateTimeOffset start = utcInstant.ToStartOfTzYear(tz);
-        DateTimeOffset afterNext = SafeAddYears(start, 2, DateTimeOffset.MaxValue);
+        DateTimeOffset afterNext = ToStartOfTzYearAtOffset(utcInstant, tz, 2);
         return SafeAddTicksPreserveOffset(afterNext, -_oneTick, DateTimeOffset.MaxValue);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static DateTimeOffset ToStartOfTzYearAtOffset(DateTimeOffset utcInstant, TimeZoneInfo tz, int yearOffset)
+    {
+        if (tz is null)
+            throw new ArgumentNullException(nameof(tz));
+
+        DateTime local = TimeZoneInfo.ConvertTimeFromUtc(utcInstant.UtcDateTime, tz);
+        int targetYear = local.Year + yearOffset;
+
+        if (targetYear < 1)
+            return DateTimeOffset.MinValue;
+
+        if (targetYear > 9999)
+            return DateTimeOffset.MaxValue;
+
+        var localStart = new DateTime(targetYear, 1, 1, 0, 0, 0, DateTimeKind.Unspecified);
+        DateTime utcStart = ConvertLocalBoundaryToUtc(localStart, tz);
+        return new DateTimeOffset(utcStart, TimeSpan.Zero);
     }
 
     /// <summary>
@@ -321,21 +321,8 @@ public static class DateTimeOffsetsYearsExtension
     {
         // Extremely rare for a year boundary, but possible for custom zones:
         // If invalid (gap), move forward to first valid minute.
-        if (tz.IsInvalidTime(localBoundary))
-        {
-            DateTime probe = localBoundary;
-
-            // Upper bound search: 24h in 1-minute steps. Executes only on the invalid-time path.
-            for (int i = 0; i < 24 * 60; i++)
-            {
-                probe = probe.AddMinutes(1);
-                if (!tz.IsInvalidTime(probe))
-                {
-                    localBoundary = probe;
-                    break;
-                }
-            }
-        }
+        while (tz.IsInvalidTime(localBoundary))
+            localBoundary = localBoundary.AddMinutes(1);
 
         // If ambiguous (overlap), choose the earlier occurrence.
         if (tz.IsAmbiguousTime(localBoundary))
